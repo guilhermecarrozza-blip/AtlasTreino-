@@ -34,10 +34,51 @@ const plans=[
 ["Abdução de quadril na polia","3","12–15","https://www.youtube.com/results?search_query=standing+cable+hip+abduction+exercise","Mantenha o tronco estável."],
 ["Panturrilha sentada","3","12–20","https://www.youtube.com/results?search_query=seated+calf+raise+exercise","Faça a amplitude confortável."]]}];
 const KEY="atlasTreinoHistoryV1";let day=0;let draft={};const $=id=>document.getElementById(id);
-function icon(){return '<svg viewBox="0 0 110 145" xmlns="http://www.w3.org/2000/svg" aria-label="Ilustração esquemática de exercício"><circle cx="55" cy="20" r="12" fill="#71dfca"/><path d="M55 34 L55 82 M55 46 L27 69 M55 46 L83 69 M55 82 L33 121 M55 82 L77 121" stroke="#9bbaff" stroke-width="9" stroke-linecap="round" fill="none"/><circle cx="55" cy="81" r="6" fill="#71dfca"/></svg>'}
+function icon(name){
+const n=name.toLowerCase();
+let pose='stand',gear='';
+if(/flexão inclinada/.test(n)){pose='push';gear='bench'}
+else if(/prancha/.test(n)){pose='plank'}
+else if(/dead bug/.test(n)){pose='lying';gear='mat'}
+else if(/elevação pélvica|glute bridge/.test(n)){pose='bridge';gear='bench'}
+else if(/step-up/.test(n)){pose='step';gear='step'}
+else if(/mesa flexora|flexora sentada/.test(n)){pose='seated';gear='machine'}
+else if(/cadeira abdutora/.test(n)){pose='abduct';gear='chair'}
+else if(/puxada|barra fixa/.test(n)){pose='pull';gear='bar'}
+else if(/remada baixa|chest press/.test(n)){pose='seated';gear='machine'}
+else if(/remada unilateral/.test(n)){pose='hinge';gear='dumbbell'}
+else if(/terra romeno/.test(n)){pose='hinge';gear='dumbbell'}
+else if(/coice/.test(n)){pose='kick';gear='cable'}
+else if(/abdução de quadril/.test(n)){pose='abduct';gear='cable'}
+else if(/panturrilha sentada/.test(n)){pose='seated';gear='chair'}
+else if(/tríceps|face pull/.test(n)){pose='pull';gear='cable'}
+else if(/elevação lateral/.test(n)){pose='armswide';gear='dumbbell'}
+else if(/rosca/.test(n)){pose='curl';gear='dumbbell'}
+else if(/panturrilha/.test(n)){pose='calf'}
+const shapes={
+stand:[[55,38,55,87],[55,49,32,73],[55,49,78,73],[55,87,37,125],[55,87,75,125]],
+calf:[[55,38,55,87],[55,49,32,70],[55,49,78,70],[55,87,38,118],[55,87,76,116]],
+armswide:[[55,38,55,87],[55,48,15,45],[55,48,95,45],[55,87,35,125],[55,87,75,125]],
+curl:[[55,38,55,87],[55,48,30,66],[30,66,40,48],[55,48,80,66],[80,66,70,48],[55,87,35,125],[55,87,75,125]],
+pull:[[55,39,55,88],[55,48,28,24],[55,48,82,24],[55,88,35,124],[55,88,75,124]],
+hinge:[[38,65,70,90],[38,65,27,93],[70,90,83,120],[70,90,53,124],[38,65,27,37]],
+push:[[35,66,81,72],[35,66,22,91],[81,72,93,95],[35,66,30,105],[81,72,77,109]],
+plank:[[30,72,82,72],[30,72,22,99],[82,72,95,100],[30,72,44,100]],
+lying:[[28,95,78,95],[28,95,20,70],[78,95,87,69],[28,95,39,122],[78,95,65,121]],
+bridge:[[27,93,50,68],[50,68,78,86],[27,93,18,121],[78,86,91,119]],
+step:[[55,38,55,84],[55,49,30,72],[55,49,77,72],[55,84,76,103],[55,84,35,125]],
+seated:[[53,40,53,78],[53,50,28,74],[53,50,79,70],[53,78,81,94],[81,94,87,120],[53,78,38,103],[38,103,30,120]],
+abduct:[[55,40,55,82],[55,50,34,72],[55,50,76,72],[55,82,20,106],[55,82,90,106]],
+kick:[[50,42,50,83],[50,53,28,76],[50,53,76,74],[50,83,33,124],[50,83,91,103]]
+};
+let lines=shapes[pose].map(a=>'<line x1="'+a[0]+'" y1="'+a[1]+'" x2="'+a[2]+'" y2="'+a[3]+'"/>').join('');
+let head=pose==='hinge'?[28,55]:pose==='push'?[23,62]:pose==='plank'?[20,69]:pose==='lying'?[17,94]:pose==='bridge'?[18,88]:[55,25];
+let eq=gear==='bench'?'<path d="M5 106H104M18 106V131M90 106V131"/>':gear==='bar'?'<path d="M12 12H98"/>':gear==='chair'?'<path d="M26 91H94M30 91V130M90 91V130"/>':gear==='machine'?'<path d="M10 130V22H25M10 130H100M24 95H94M80 95V130"/>':gear==='step'?'<path d="M62 109H107V130H62Z"/>':gear==='cable'?'<path d="M99 15V130M99 15H80"/>':gear==='dumbbell'?'<path d="M15 81H34M13 75V87M36 75V87"/>':gear==='mat'?'<path d="M5 130H105"/>':'';
+return '<svg viewBox="0 0 110 145" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Posição esquemática para '+name.replace(/"/g,'')+'"><g stroke="#62dcc6" stroke-width="3" fill="none" stroke-linecap="round">'+eq+'</g><g stroke="#a9baff" stroke-width="8" stroke-linecap="round">'+lines+'</g><circle cx="'+head[0]+'" cy="'+head[1]+'" r="10" fill="#72e2cb"/></svg>';
+}
 function load(){try{return JSON.parse(localStorage.getItem(KEY)||"[]")}catch{return []}}
 function save(h){localStorage.setItem(KEY,JSON.stringify(h))}
-function render(){document.querySelectorAll("#days button").forEach((b,i)=>b.classList.toggle("active",i===day));$("dayInfo").textContent=plans[day].detail;let p=plans[day];$("workout").innerHTML='<h2>'+p.title+'</h2>'+p.items.map((e,i)=>{let k=day+"-"+i,v=draft[k]||{sets:e[1],reps:e[2],effort:"7",done:false};return '<article class="exercise"><div class="figure">'+icon()+'</div><div><h3>'+(i+1)+'. '+e[0]+'</h3><div class="muted">'+e[4]+'</div><div class="inputs"><label>Séries<input data-k="'+k+'" data-f="sets" value="'+v.sets+'" aria-label="Séries"></label><label>Repetições<input data-k="'+k+'" data-f="reps" value="'+v.reps+'" aria-label="Repetições"></label><label>Esforço 1–10<input type="number" min="1" max="10" data-k="'+k+'" data-f="effort" value="'+v.effort+'" aria-label="Esforço"></label></div><div class="actions"><a href="'+e[3]+'" target="_blank" rel="noopener noreferrer">▶ Ver demonstração</a><button data-done="'+k+'" class="'+(v.done?'primary':'')+'">'+(v.done?'✓ Concluído':'Marcar concluído')+'</button></div></div></article>'}).join("");$("workout").querySelectorAll("input").forEach(x=>x.addEventListener("input",()=>{let k=x.dataset.k,i=+k.split("-")[1],e=plans[day].items[i];draft[k]??={sets:e[1],reps:e[2],effort:"7",done:false};draft[k][x.dataset.f]=x.value}));$("workout").querySelectorAll("[data-done]").forEach(b=>b.onclick=()=>{let k=b.dataset.done,i=+k.split("-")[1],e=plans[day].items[i];draft[k]??={sets:e[1],reps:e[2],effort:"7",done:false};draft[k].done=!draft[k].done;render()})}
+function render(){document.querySelectorAll("#days button").forEach((b,i)=>b.classList.toggle("active",i===day));$("dayInfo").textContent=plans[day].detail;let p=plans[day];$("workout").innerHTML='<h2>'+p.title+'</h2>'+p.items.map((e,i)=>{let k=day+"-"+i,v=draft[k]||{sets:e[1],reps:e[2],effort:"7",done:false};return '<article class="exercise"><div class="figure">'+icon(e[0])+'</div><div><h3>'+(i+1)+'. '+e[0]+'</h3><div class="muted">'+e[4]+'</div><div class="inputs"><label>Séries<input data-k="'+k+'" data-f="sets" value="'+v.sets+'" aria-label="Séries"></label><label>Repetições<input data-k="'+k+'" data-f="reps" value="'+v.reps+'" aria-label="Repetições"></label><label>Esforço 1–10<input type="number" min="1" max="10" data-k="'+k+'" data-f="effort" value="'+v.effort+'" aria-label="Esforço"></label></div><div class="actions"><a href="'+e[3]+'" target="_blank" rel="noopener noreferrer">▶ Ver demonstração</a><button data-done="'+k+'" class="'+(v.done?'primary':'')+'">'+(v.done?'✓ Concluído':'Marcar concluído')+'</button></div></div></article>'}).join("");$("workout").querySelectorAll("input").forEach(x=>x.addEventListener("input",()=>{let k=x.dataset.k,i=+k.split("-")[1],e=plans[day].items[i];draft[k]??={sets:e[1],reps:e[2],effort:"7",done:false};draft[k][x.dataset.f]=x.value}));$("workout").querySelectorAll("[data-done]").forEach(b=>b.onclick=()=>{let k=b.dataset.done,i=+k.split("-")[1],e=plans[day].items[i];draft[k]??={sets:e[1],reps:e[2],effort:"7",done:false};draft[k].done=!draft[k].done;render()})}
 $("days").innerHTML=plans.map((p,i)=>'<button data-day="'+i+'">Dia '+String.fromCharCode(65+i)+'</button>').join("");document.querySelectorAll("[data-day]").forEach(b=>b.onclick=()=>{day=+b.dataset.day;render()});
 $("finish").onclick=()=>{let items=plans[day].items.map((e,i)=>({name:e[0],...draft[day+"-"+i]})).filter(x=>x.done);if(!items.length){$("feedback").textContent="Marque pelo menos um exercício como concluído.";return}let h=load();h.unshift({date:new Date().toISOString(),day:plans[day].title,items});try{save(h)}catch{$("feedback").textContent="Não foi possível salvar. Verifique o armazenamento do navegador.";return}plans[day].items.forEach((_,i)=>delete draft[day+"-"+i]);$("feedback").textContent="Treino salvo com sucesso!";render();history()};
 function history(){let h=load();$("history").innerHTML=h.length?h.map(x=>'<div class="history-item"><strong>'+new Date(x.date).toLocaleDateString("pt-BR")+' • '+x.day+'</strong><p>'+x.items.map(i=>i.name+': '+i.sets+' séries × '+i.reps+' rep. • esforço '+i.effort).join('<br>')+'</p></div>').join(""):'<p>Nenhum treino salvo ainda.</p>'}
